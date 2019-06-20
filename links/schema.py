@@ -17,11 +17,36 @@ class VoteType(DjangoObjectType):
         model = Vote
 
 
+class FeedType(graphene.ObjectType):
+    links = graphene.List(LinkType)
+    count = graphene.Int()
+
+
 class Query(graphene.ObjectType):
+    feed = graphene.Field(
+        FeedType, filter=graphene.String(), skip=graphene.Int(), first=graphene.Int()
+    )
     links = graphene.List(
         LinkType, search=graphene.String(), first=graphene.Int(), skip=graphene.Int()
     )
     votes = graphene.List(VoteType)
+
+    def resolve_feed(self, info, filter=None, skip=None, first=None, **kwargs):
+        qs = Link.objects.all()
+
+        if filter:
+            q_filter = Q(description__icontans=filter) | Q(url__icontains=filter)
+            qs = qs.filter(q_filter)
+
+        if skip:
+            qs = qs[skip:]
+
+        if first:
+            qs = qs[:first]
+
+        print(qs.count())
+
+        return FeedType(links=qs, count=qs.count())
 
     def resolve_links(self, info, search=None, first=None, skip=None, **kwargs):
         qs = Link.objects.all()
