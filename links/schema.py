@@ -44,8 +44,6 @@ class Query(graphene.ObjectType):
         if first:
             qs = qs[:first]
 
-        print(qs.count())
-
         return FeedType(links=qs, count=qs.count())
 
     def resolve_links(self, info, search=None, first=None, skip=None, **kwargs):
