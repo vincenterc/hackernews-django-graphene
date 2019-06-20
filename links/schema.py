@@ -112,6 +112,33 @@ class CreateVote(graphene.Mutation):
         return CreateVote(user=user, link=link)
 
 
+class Post(graphene.Mutation):
+    id = graphene.ID()
+    created_at = graphene.DateTime()
+    url = graphene.String()
+    description = graphene.String()
+
+    class Arguments:
+        url = graphene.String()
+        description = graphene.String()
+
+    def mutate(self, info, url, description):
+        user = info.context.user
+        if user.is_anonymous:
+            user = None
+
+        link = Link(url=url, description=description, posted_by=user)
+        link.save()
+
+        return Post(
+            id=link.id,
+            created_at=link.created_at,
+            url=link.url,
+            description=link.description,
+        )
+
+
 class Mutation(graphene.ObjectType):
     create_link = CreateLink.Field()
     create_vote = CreateVote.Field()
+    post = Post.Field()
