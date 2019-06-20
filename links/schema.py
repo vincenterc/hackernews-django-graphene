@@ -125,7 +125,7 @@ class Post(graphene.Mutation):
     def mutate(self, info, url, description):
         user = info.context.user
         if user.is_anonymous:
-            user = None
+            raise GraphQLError("You must be logged to post!")
 
         link = Link(url=url, description=description, posted_by=user)
         link.save()
