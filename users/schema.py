@@ -1,5 +1,6 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 import graphene
+from graphql import GraphQLError
 from graphene_django import DjangoObjectType
 from graphql_jwt.shortcuts import get_token
 
@@ -44,9 +45,29 @@ class SignUp(graphene.Mutation):
         return SignUp(token=token, user=user)
 
 
+class Login(graphene.Mutation):
+    token = graphene.String()
+    user = graphene.Field(UserType)
+
+    class Arguments:
+        email = graphene.String()
+        password = graphene.String()
+
+    def mutate(self, info, email, password):
+        user = authenticate(username=email, password=password)
+
+        if user is None:
+            raise GraphQLError("Unauthenticated User!")
+
+        token = get_token(user)
+
+        return Login(token=token, user=user)
+
+
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
     signup = SignUp.Field()
+    login = Login.Field()
 
 
 class Query(graphene.ObjectType):
