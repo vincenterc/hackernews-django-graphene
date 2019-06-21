@@ -142,7 +142,30 @@ class Post(graphene.Mutation):
         )
 
 
+class SubmitVote(graphene.Mutation):
+    id = graphene.ID()
+    link = graphene.Field(LinkType)
+    user = graphene.Field(UserType)
+
+    class Arguments:
+        link_id = graphene.ID()
+
+    def mutate(self, info, link_id):
+        user = info.context.user
+        if user.is_anonymous:
+            raise GraphQLError("You must be logged to vote!")
+
+        link = Link.objects.filter(id=link_id).first()
+        if not Link:
+            raise GraphQLError("Invalid Link!")
+
+        vote = Vote.objects.create(user=user, link=link)
+
+        return Vote(id=vote.id, link=vote.link, user=vote.user)
+
+
 class Mutation(graphene.ObjectType):
     create_link = CreateLink.Field()
     create_vote = CreateVote.Field()
     post = Post.Field()
+    submit_vote = SubmitVote.Field()
