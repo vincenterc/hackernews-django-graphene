@@ -41,7 +41,7 @@ class Query(graphene.ObjectType):
         qs = Link.objects.all()
 
         if filter:
-            q_filter = Q(description__icontans=filter) | Q(url__icontains=filter)
+            q_filter = Q(description__icontains=filter) | Q(url__icontains=filter)
             qs = qs.filter(q_filter)
 
         if skip:
