@@ -38,6 +38,7 @@ class SignUp(graphene.Mutation):
     def mutate(self, info, email, password, name):
         user = get_user_model()(username=email, email=email)
         user.set_password(password)
+        user.first_name = name
         user.save()
 
         token = get_token(user)
