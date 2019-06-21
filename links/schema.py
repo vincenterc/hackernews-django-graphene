@@ -7,14 +7,20 @@ from users.schema import UserType
 from .models import Link, Vote
 
 
-class LinkType(DjangoObjectType):
-    class Meta:
-        model = Link
-
-
 class VoteType(DjangoObjectType):
     class Meta:
         model = Vote
+
+
+class LinkType(DjangoObjectType):
+    votes = graphene.List(VoteType)
+
+    @graphene.resolve_only_args
+    def resolve_votes(self):
+        return self.votes.all()
+
+    class Meta:
+        model = Link
 
 
 class FeedType(graphene.ObjectType):
