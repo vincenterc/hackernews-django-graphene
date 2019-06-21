@@ -121,6 +121,8 @@ class Post(graphene.Mutation):
     created_at = graphene.DateTime()
     url = graphene.String()
     description = graphene.String()
+    posted_by = graphene.Field(UserType)
+    votes = graphene.List(VoteType)
 
     class Arguments:
         url = graphene.String()
@@ -139,6 +141,8 @@ class Post(graphene.Mutation):
             created_at=link.created_at,
             url=link.url,
             description=link.description,
+            posted_by=link.posted_by,
+            votes=link.votes.all(),
         )
 
 
