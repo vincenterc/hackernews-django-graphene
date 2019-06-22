@@ -28,21 +28,35 @@ class FeedType(graphene.ObjectType):
     count = graphene.Int()
 
 
+class LinkOrderByInput(graphene.Enum):
+    createdAt_ASC = "created_at"
+    createdAt_DESC = "-created_at"
+
+
 class Query(graphene.ObjectType):
     feed = graphene.Field(
-        FeedType, filter=graphene.String(), skip=graphene.Int(), first=graphene.Int()
+        FeedType,
+        filter=graphene.String(),
+        skip=graphene.Int(),
+        first=graphene.Int(),
+        order_by=graphene.Argument(LinkOrderByInput),
     )
     links = graphene.List(
         LinkType, search=graphene.String(), first=graphene.Int(), skip=graphene.Int()
     )
     votes = graphene.List(VoteType)
 
-    def resolve_feed(self, info, filter=None, skip=None, first=None, **kwargs):
+    def resolve_feed(
+        self, info, filter=None, skip=None, first=None, order_by=None, **kwargs
+    ):
         qs = Link.objects.all()
 
         if filter:
             q_filter = Q(description__icontains=filter) | Q(url__icontains=filter)
             qs = qs.filter(q_filter)
+
+        if order_by:
+            qs = qs.order_by(order_by)
 
         if skip:
             qs = qs[skip:]
