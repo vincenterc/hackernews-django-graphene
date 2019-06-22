@@ -1,5 +1,5 @@
 .venv
 Pipfile
 Pipfile.lock
-db.sqlite3
-links/migrations/*
+# db.sqlite3
+# links/migrations/*
